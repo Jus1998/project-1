@@ -1,0 +1,62 @@
+---
+- name: Install Git on Ubuntu
+  hosts: master
+  become: true
+  tasks:
+  - name: Update apt cache
+    apt:
+      update_cache: yes
+  - name: Install Git
+    apt:
+      name: git
+      state: present
+
+
+- hosts: master
+  tasks:
+    - name: Install Maven using Ansible
+      become: yes
+      apt:
+        name: "{{ packages }}"
+        state: present
+      vars:
+        packages:
+           - maven
+
+
+- name: Install Docker on Ubuntu
+  hosts: master
+  become: true
+  
+  tasks:
+  - name: Update apt cache
+    apt:
+      update_cache: yes
+
+  - name: Install prerequisites
+    apt:
+      name: "{{ item }}"
+      state: present
+      update_cache: yes
+    with_items:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - gnupg-agent
+      - software-properties-common
+
+  - name: Add Docker GPG key
+    apt_key:
+      url: https://download.docker.com/linux/ubuntu/gpg
+      state: present
+
+  - name: Add Docker repository
+    apt_repository:
+      repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable
+      state: present
+
+  - name: Install Docker
+    apt:
+      name: docker-ce
+      state: present
+
